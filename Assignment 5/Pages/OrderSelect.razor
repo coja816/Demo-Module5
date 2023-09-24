@@ -1,0 +1,104 @@
+﻿@page "/orderselect"
+@using Models
+
+@attribute [Authorize]
+
+<h3>Order Selection</h3>
+
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Customer ID</th>
+            <th>Company Name</th>
+            <th>Contact Name</th>
+            <th>Phone</th>
+            <th>Select</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in customers)
+        {
+            <tr>
+                <td>@customer.CustomerId</td>
+                <td>@customer.CompanyName</td>
+                <td>@customer.ContactName</td>
+                <td>@customer.Phone</td>
+                <td><input type="radio" name="select" @onclick="@(e => RowClick(e, customer.CustomerId))"></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (orders == null)
+{
+   
+    
+    <p><em>Orders is empty</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+
+                <th>Order ID</th>
+
+                <th>Order Date</th>
+
+                <th>Shipped Date</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                if (int.TryParse(order.CustomerId, out int customerId))
+                {
+                    if (Convert.ToInt32(order.CustomerId) == selectedCustomerID)
+                    {
+                        <tr>
+
+                            <td>@order.OrderId</td>
+
+                            <td>@order.OrderDate</td>
+
+                            <td>@order.ShippedDate</td>
+
+                        </tr>
+                    }
+                }
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    NorthwindContext db = new NorthwindContext();
+
+    private int selectedCustomerID = 0;
+
+    private List<Customer> customers;
+
+    private List<Order> orders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customers = db.Customers.ToList();
+
+        orders = db.Orders.ToList();
+    }
+
+    protected async Task RowClick(MouseEventArgs e, string customerId)
+    {
+        int customerIdInt;
+
+        if (int.TryParse(customerId, out customerIdInt))
+        {
+            selectedCustomerID = customerIdInt;
+        }
+    }
+}
